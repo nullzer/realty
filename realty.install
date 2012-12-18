@@ -1,0 +1,37 @@
+<?php
+function realty_schema(){
+	//DRUPAL DATA TYPEs, bld!!! drupal.org/node/159605
+	$schema['entity_realty'] = array(
+		'description' => 'Сущность для недвижимости',
+		'fields' => array(
+			'rid' => array(
+				'description' => 'Уникальный идентификатор недвижимости',
+				'type' => 'serial',
+				'unsigned' => TRUE,
+				'not null' => TRUE,
+			),
+			'created' => array(
+				'description' => 'Время создания объекта',
+				'type' => 'int',
+				'size' => 'big',
+			//	'unsigned' => TRUE,
+				'not null' => TRUE,
+			),
+                    	'uid' =>  array(
+				'description' => 'Пользователь, создавший проводку',
+				'type' => 'int',
+				'size' => 'big',
+				//'unsigned' => TRUE,
+				'not null' => TRUE,
+			),
+                        'original' => array(
+				'description' => 'Ссыль на оригинал контента',
+				'type' => 'text',
+				'size' => 'normal',
+				'not null' => TRUE,
+			),
+		),
+		'primary key' => array('rid'),
+	);
+	return $schema;
+}

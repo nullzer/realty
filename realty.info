@@ -1,0 +1,6 @@
+name = Entity for Realty
+description = New fieldable entity
+core = 7.x
+package = Spider
+version = "7.x"
+

@@ -1,0 +1,160 @@
+<?php
+
+function realty_entity_info(){
+    return  array(
+                'realty' => array(
+                    'label' => t('Realty'),
+                    'entity class' => 'Realty',
+                    'controller class' => 'RealtyController',
+                    'base table' => 'entity_realty',
+                    'fieldable' => TRUE,
+                    'entity keys' => array(
+                        'id' => 'rid',
+                    ),
+                    'bundles' => array(),
+                    'load hook' => 'realty_load',
+                    'view modes' => array(
+                        'full' => array(
+                            'label' => 'Default',
+                            'custom settings' => FALSE,
+                        ),
+                    ),
+                    'label callback' => 'entity_class_label',
+                    'uri callback' => 'entity_class_uri',
+                    'access callback' => 'realty_access',
+                    'module' => 'realty',
+                )
+            );
+}
+
+function realty_permission(){
+	return array(
+		'view realty entities' => array(
+			'title' => 'Просмотр ',
+			'description' => '',
+			'restrict access' => TRUE,
+		),
+		'create realty entities' => array(
+			'title' => 'Создание ',
+			'description' => '',
+			'restrict access' => TRUE,
+		),
+		'edit realty entities' => array(
+			'title' => 'Редактирование',
+			'description' => '',
+			'restrict access' => TRUE,
+		),
+		'delete realty entities' => array(
+			'title' => 'Удаление',
+			'description' => '',
+			'restrict access' => TRUE,
+		),
+	);
+}
+
+function realty_access($op, $task, $account = NULL, $entity_type = NULL){
+	global $user;
+	
+        if(!isset($account))
+		$account = $user;
+
+	switch($op){
+		case 'view':
+			return user_access('view realty entities',$account);
+		break;
+		case 'create':
+			return user_access('create realty entities',$account);
+		break;
+		case 'edit':
+			return user_access('edit realty entities',$account);
+		break;
+	};	
+}
+
+function realty_menu(){
+	$realty_uri = 'realty/%realty';
+	$realty_uri_arg_pos = 1;
+	$items[$realty_uri] = array(
+		'title callback' => 'entity_label',
+		'title arguments' => array('realty',$realty_uri_arg_pos),
+		'page callback' => 'realty_view',
+		'page arguments' => array($realty_uri_arg_pos),
+		'access callback' => 'entity_access',
+		'access arguments' => array('view','realty',$realty_uri_arg_pos),
+		'file' => 'realty.page.inc',
+	);
+	
+	$items[$realty_uri.'/view'] = array(
+		'title' => 'View',
+		'type' => MENU_DEFAULT_LOCAL_TASK,
+		'weight' => -10,
+	);
+	return $items;
+}
+
+class Realty extends Entity{
+	protected function defaultLabel(){
+		return $this->identifier();
+	}
+	
+	protected function defaultUri(){
+		return array('path' => 'realty/'.$this->identifier());
+	}
+}
+
+function realty_load($rid,$reset = FALSE){
+	$realties = realty_load_multiple(array($rid),array(),$reset);
+	return reset($realties);
+}
+
+function realty_load_multiple($rids = array(), $conditions = array(),$reset = FALSE){
+	return entity_load('realty',$rids,$conditions,$reset);
+}
+
+function realty_save($realty){
+	entity_save('realty',$realty);
+}
+
+function realty_delete($realty){
+	entity_delete('realty',entity_id('realty',$realty));
+}
+
+function realty_delete_multiple($rids){
+	entity_delete_multiple('realty',$rids);
+}
+
+function realty_entity_property_info_alter(&$info){
+	$properties = &$info['ealty']['properties'];
+	$properties['created'] = array(
+		'label' => t('Date created'),
+		'type' => 'date',
+		'description' => 'lets tests this * realty',
+		'setter callback' => 'entity_property_verbatim_set',
+		'setter permission' => 'administer nodes',
+		'schema field' => 'created',
+	);
+	$properties['uid'] = array(
+		'label' => t('Author'),
+		'type' => 'user',
+		'setter callback' => 'entity_property_verbatim_set',
+		'description' => 'Descr of this fck field',
+		'setter permission' => 'administer nodes',
+		'required' => TRUE,
+		'schema field' => 'uid',
+	);
+	$properties['original'] = array(
+		'label' => t('Original'),
+		'type' => 'text',
+		'description' => 'Link to the Original content',
+		'setter callback' => 'entity_property_verbatim_set',
+		'setter permission' => 'administer nodes',
+		'required' => TRUE,
+	);		
+}
+
+function realty_views_api(){
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'realty'),
+  );
+}

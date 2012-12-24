@@ -1,5 +1,24 @@
 <?php
 
+function realty_menu(){
+    $items = array();
+    $items['e1'] = array(
+                         'title' => 'Realty content',
+                         'page callback' => 'rt_page',
+                         'access callback' => 'rt_access',
+                         'type' => MENU_LOCAL_TASK,
+                         );
+  return $items;
+}
+
+function rt_page(){
+    return 'test page';
+}
+
+function rt_access(){
+    return TRUE;
+}
+
 function realty_entity_info(){
     return  array(
                 'realty' => array(

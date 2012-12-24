@@ -15,7 +15,7 @@ class RealtyController extends EntityAPIController{
 		$wrapper = entity_metadata_wrapper('realty',$entity);
 		$content['author'] = array('#markup' => 
 			t('Добавил -  !uid<br>',
-                                    array(  => $entity->uid)));
+                                    array('!uid' => $entity->uid)));
 
 		$content['created'] = array(
 			'#markup' => 

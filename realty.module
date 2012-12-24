@@ -1,16 +1,5 @@
 <?php
 
-function realty_menu(){
-    $items = array();
-    $items['e1'] = array(
-                         'title' => 'Realty content',
-                         'page callback' => 'rt_page',
-                         'access callback' => 'rt_access',
-                         'type' => MENU_LOCAL_TASK,
-                         );
-  return $items;
-}
-
 function rt_page(){
     return 'test page';
 }
@@ -108,8 +97,66 @@ function realty_menu(){
 		'type' => MENU_DEFAULT_LOCAL_TASK,
 		'weight' => -10,
 	);
+        
+        $items['realties/realty'] = array(
+            'title' => 'Entity Realty',
+            'page callback' => 'rt_info_page',
+            'access arguments' => array('view realty entities'),
+        );
+        
 	return $items;
 }
+
+function rt_info_page() {
+  $content['preface'] = array(
+    '#type' => 'item',
+    '#markup' => t('The entity example provides a simple example entity.')
+  );
+  if (user_access('view realty entities')) {
+    $content['preface']['#markup'] =  t('You can administer these and add fields and change the view !link.',
+      array('!link' => l(t('here'), 'admin/structure/entity_example_basic/manage'))
+    );
+  }
+  $content['table'] = rt_list_entities();
+
+  return $content;
+}
+
+function rt_list_entities() {
+  $content = array();
+  // Load all of our entities.
+  $entities = realty_load_multiple();
+  if (!empty($entities)) {
+    foreach ( $entities as $entity ) {
+      // Create tabular rows for our entities.
+      $rows[] = array(
+        'data' => array(
+          'id' => $entity->rid,
+          //'item_description' => l($entity->item_description, 'examples/entity_example/basic/' . $entity->basic_id),
+          //'bundle' => $entity->bundle_type,
+        ),
+      );
+    }
+    // Put our entities into a themed table. See theme_table() for details.
+    $content['entity_table'] = array(
+      '#theme' => 'table',
+      '#rows' => $rows,
+      '#header' => array(t('ID'), t('Item Description'), t('Bundle')),
+    );
+  }
+  else {
+    // There were no entities. Tell the user.
+    $content[] = array(
+      '#type' => 'item',
+      '#markup' => t('No entity_example_basic entities currently exist.'),
+    );
+  }
+  return $content;
+}
+
+
+
+
 
 class Realty extends Entity{
 	protected function defaultLabel(){

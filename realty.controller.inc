@@ -14,8 +14,8 @@ class RealtyController extends EntityAPIController{
 	public function buildContent($entity,$view_mode = 'full', $langcode = NULL, $content = array()){
 		$wrapper = entity_metadata_wrapper('realty',$entity);
 		$content['author'] = array('#markup' => 
-			t('Добавил -  !author<br>',
-				array('!author'=>$wrapper->uid->name->value(array('sanitize' => TRUE)))));
+			t('Добавил -  !uid<br>',
+                                    array(  => $entity->uid)));
 
 		$content['created'] = array(
 			'#markup' => 

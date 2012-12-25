@@ -10,6 +10,12 @@ function realty_schema(){
 				'unsigned' => TRUE,
 				'not null' => TRUE,
 			),
+                        'bundle_type' => array(
+                            'description' => 'The bundle type',
+                            'type' => 'text',
+                            'size' => 'medium',
+                            'not null' => TRUE
+                        ),
 			'created' => array(
 				'description' => 'Время создания объекта',
 				'type' => 'int',
@@ -34,4 +40,8 @@ function realty_schema(){
 		'primary key' => array('rid'),
 	);
 	return $schema;
+}
+
+function realty_uninstall() {
+  field_attach_delete_bundle('realty' , 'realty_bundle' );
 }

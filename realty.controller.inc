@@ -7,6 +7,7 @@ class RealtyController extends EntityAPIController{
 		$values += array(
 			'created' => REQUEST_TIME,
 			'uid' => $user->uid,
+                        'bundle_type' => 'realty_bundle',
 		);
 		return parent::create($values);
 	}

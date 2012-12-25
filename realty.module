@@ -18,8 +18,21 @@ function realty_entity_info(){
                     'fieldable' => TRUE,
                     'entity keys' => array(
                         'id' => 'rid',
+                        'bundle' => 'bundle_type',
                     ),
-                    'bundles' => array(),
+                    'bundle keys' => array(
+                        'bundle' => 'bundle_type',
+                    ),
+                    'static cache' => TRUE,
+                    'bundles' => array(
+                         'realty_bundle' => array(
+                            'label' => 'Realties bundle',
+                            'admin' => array(
+                                'path' => 'admin/structure/realty/manage',
+                                'access arguments' => array('administer realty'),
+                            ),
+                         ),
+                    ),
                     'load hook' => 'realty_load',
                     'view modes' => array(
                         'full' => array(
@@ -104,7 +117,92 @@ function realty_menu(){
             'access arguments' => array('view realty entities'),
         );
         
+        $items['admin/structure/realty/manage'] = array(
+            'title' => 'Entity Realty',
+            'page callback' => 'realty_admin_page',
+            'access arguments' => array('administer realty'),
+        );
+        
+        $items['realties/add'] = array(
+             'title' => 'Add an Realty Entity',
+             'page callback' => 'realty_add',
+             'access arguments' => array('create entity_example_basic entities'),
+        );
+        
 	return $items;
+}
+
+function realty_add() {
+  $entity = entity_get_controller('realty')->create();
+  return drupal_get_form('realty_form', $entity);
+}
+
+function realty_form($form, &$form_state, $entity) {
+  $form['original'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Original link'),
+    '#required' => TRUE,
+    '#default_value' => $entity->original,
+  );
+
+  $form['basic_entity'] = array(
+    '#type' => 'value',
+    '#value' => $entity,
+  );
+
+  field_attach_form('realty', $entity, $form, $form_state);
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+    '#weight' => 100,
+  );
+  
+  $form['delete'] = array(
+    '#type' => 'submit',
+    '#value' => t('Delete'),
+    '#submit' => array('realty_edit_delete'),
+    '#weight' => 200,
+  );
+
+  return $form;
+}
+
+function realty_form_validate($form, &$form_state) {
+  field_attach_form_validate('realty', $form_state['values']['basic_entity'], $form, $form_state);
+}
+
+function realty_form_submit($form, &$form_state) {
+  $entity = $form_state['values']['basic_entity'];
+  $entity->original = $form_state['values']['original'];
+  field_attach_submit('realty', $entity, $form, $form_state);
+  $entity = realty_save($entity);
+  $form_state['redirect'] = 'realty/'.$entity->rid;
+}
+
+function realty_edit_delete($form,&$form_state){
+  $entity = $form_state['values']['basic_entity'];
+  realty_delete($entity);
+  drupal_set_message(t('The entity (ID %id) has been deleted',
+    array('%id' => $entity->rid))
+  );
+  $form_state['redirect'] = 'node';
+}
+
+function realty_admin_page() {
+  $content = array();
+  $content[] = array(
+    '#type' => 'item',
+    '#markup' => t('Administration page for Entity Realty.')
+  );
+  $content[] = array(
+    '#type' => 'item',
+    '#markup' => l(t('Add an Realty entity'), 'realties/add'),
+  );
+
+  //$content['table'] = entity_example_basic_list_entities();
+
+  return $content;
 }
 
 function rt_info_page() {
@@ -117,7 +215,7 @@ function rt_info_page() {
       array('!link' => l(t('here'), 'admin/structure/entity_example_basic/manage'))
     );
   }
-  $content['table'] = rt_list_entities();
+  //$content['table'] = rt_list_entities();
 
   return $content;
 }
@@ -155,9 +253,41 @@ function rt_list_entities() {
 }
 
 
+/**
+ * Implements hook_field_extra_fields().
+ *
+ * This exposes the "extra fields" (usually properties that can be configured
+ * as if they were fields) of the entity as pseudo-fields
+ * so that they get handled by the Entity and Field core functionality.
+ * Node titles get treated in a similar manner.
+ */
+function realty_field_extra_fields() {
+  $form_elements['original'] = array(
+    'label' => t('Original'),
+    'description' => t('Original link to content'),
+    'weight' => -5,
+  );
+  $display_elements['created'] = array(
+    'label' => t('Creation date'),
+    'description' => t('Creation date (an extra display field)'),
+    'weight' => 0,
+  );
+  $display_elements['uid'] = array(
+    'label' => t('Author'),
+    'description' => t('User ID of realty'),
+    'weight' => 0,
+  );
 
+  // Since we have only one bundle type, we'll just provide the extra_fields
+  // for it here.
+  $extra_fields['realty']['realty_bundle']['form'] = $form_elements;
+    
+  $extra_fields['realty']['realty_bundle']['display'] = $display_elements;
+  $extra_fields['realty']['realty_bundle']['display']['original'] = $form_elements['original'];
+  return $extra_fields;
+}
 
-
+/* Class definition */
 class Realty extends Entity{
 	protected function defaultLabel(){
 		return $this->identifier();

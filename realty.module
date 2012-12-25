@@ -119,6 +119,7 @@ function realty_menu(){
         
         $items['admin/structure/realty/manage'] = array(
             'title' => 'Entity Realty',
+            'description' => 'Test',
             'page callback' => 'realty_admin_page',
             'access arguments' => array('administer realty'),
         );

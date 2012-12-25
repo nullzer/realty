@@ -127,9 +127,9 @@ function realty_menu(){
         $items['realties/add'] = array(
              'title' => 'Add an Realty Entity',
              'page callback' => 'realty_add',
-             'access arguments' => array('create entity_example_basic entities'),
+             'access arguments' => array('create realty entities'),
         );
-        
+
 	return $items;
 }
 
